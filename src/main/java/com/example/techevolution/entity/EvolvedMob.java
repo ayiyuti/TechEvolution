@@ -7,22 +7,20 @@ import com.example.techevolution.ai.SabotageGoal;
 import com.example.techevolution.config.ModConfig;
 import com.example.techevolution.difficulty.DifficultyManager;
 import com.example.techevolution.difficulty.DifficultyStage;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-public class EvolvedMob extends Monster {
+// 这里改为继承 Zombie，才能和渲染器的 ZombieModel 匹配
+public class EvolvedMob extends Zombie {
     private int stage = 0;
     private boolean initialized = false;
     private int evoCheck = 0;
@@ -33,9 +31,8 @@ public class EvolvedMob extends Monster {
         this.xpReward = 5;
     }
 
-    /** 属性供应商：交给 RegisterEntityAttributesEvent 注册，否则 spawn 时 getAttribute 为 null。 */
     public static AttributeSupplier.Builder createAttributes() {
-        return Monster.createAttributes();
+        return Zombie.createAttributes(); 
     }
 
     @Override
@@ -57,7 +54,6 @@ public class EvolvedMob extends Monster {
             this.initialized = true;
         }
 
-        // 进化检查：每分钟看一次全局难度是否超过自身阶段
         if (++evoCheck >= 1200) {
             evoCheck = 0;
             int global = DifficultyManager.getStageIndex();
@@ -69,7 +65,6 @@ public class EvolvedMob extends Monster {
         }
     }
 
-    /** 按阶段应用属性与解锁 AI */
     private void applyStage(int s) {
         if (s < 0 || s > 3) s = 0;
         double hm = safe(ModConfig.healthMul, s, 1.0);
@@ -81,12 +76,10 @@ public class EvolvedMob extends Monster {
         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(3.0 * dm);
         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.23 * sm);
 
-        // 智能阶段：开启避害
         if (s >= DifficultyStage.SMART.index && sabotageAdded < DifficultyStage.SMART.index) {
             this.goalSelector.addGoal(3, new AvoidHazardGoal(this));
             sabotageAdded = DifficultyStage.SMART.index;
         }
-        // 破坏者阶段：第一目标=产线（最高优先级）
         if (s >= DifficultyStage.SABOTEUR.index && sabotageAdded < DifficultyStage.SABOTEUR.index) {
             this.goalSelector.addGoal(1, new SabotageGoal(this));
             sabotageAdded = DifficultyStage.SABOTEUR.index;
@@ -97,7 +90,6 @@ public class EvolvedMob extends Monster {
         return (arr != null && idx < arr.length) ? arr[idx] : def;
     }
 
-    /** 指令用：直接设定阶段 */
     public void forceStage(int s) {
         this.stage = s;
         this.initialized = true;
