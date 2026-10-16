@@ -12,7 +12,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-// 注意这里：1.21.1 是 EntityAttributeCreationEvent，不是 RegisterEntityAttributesEvent
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,8 +26,8 @@ public class TechEvolution {
         ModEntities.register(modEventBus);
 
         modEventBus.addListener(EntityRenderersEvent.RegisterRenderers.class, EvolvedMobRenderer::register);
-        
-        // 修正事件监听器
+
+        // 1.21.1 中注册实体属性的正确事件是 EntityAttributeCreationEvent
         modEventBus.addListener(EntityAttributeCreationEvent.class,
                 event -> event.put(ModEntities.EVOLVED_MOB.get(), EvolvedMob.createAttributes().build()));
 
