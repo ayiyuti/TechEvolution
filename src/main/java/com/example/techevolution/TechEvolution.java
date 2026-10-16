@@ -12,7 +12,8 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.entity.RegisterEntityAttributesEvent;
+// 注意这里：1.21.1 是 EntityAttributeCreationEvent，不是 RegisterEntityAttributesEvent
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,18 +26,14 @@ public class TechEvolution {
         ModConfig.init();
         ModEntities.register(modEventBus);
 
-        // 客户端渲染注册
         modEventBus.addListener(EntityRenderersEvent.RegisterRenderers.class, EvolvedMobRenderer::register);
+        
+        // 修正事件监听器
+        modEventBus.addListener(EntityAttributeCreationEvent.class,
+                event -> event.put(ModEntities.EVOLVED_MOB.get(), EvolvedMob.createAttributes().build()));
 
-        // 自定义实体的属性注册（缺失会导致 spawn 时 NPE）
-        modEventBus.addListener(RegisterEntityAttributesEvent.class,
-                event -> event.register(ModEntities.EVOLVED_MOB.get(), EvolvedMob.createAttributes()));
-
-        // 全局事件
         NeoForge.EVENT_BUS.register(new DifficultyManager());
         NeoForge.EVENT_BUS.register(new SpawnHandler());
-
-        // 指令
         NeoForge.EVENT_BUS.addListener(RegisterCommandsEvent.class, SpawnCommand::onRegister);
 
         LOGGER.info("[TechEvolution] 模组已加载：科技进化怪潮启动。");
