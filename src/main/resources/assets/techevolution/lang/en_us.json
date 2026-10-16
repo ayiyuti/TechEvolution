@@ -1,0 +1,5 @@
+{
+  "entity.techevolution.evolved_mob": "Evolved Mob",
+  "commands.techevolution.spawn": "Spawn an evolved mob",
+  "commands.techevolution.info": "Show current difficulty & stage"
+}

@@ -1,0 +1,31 @@
+name: Build TechEvolution
+
+on:
+  workflow_dispatch:        # 手动在 GitHub 网页点一下就能构建
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取源码
+        uses: actions/checkout@v4
+
+      - name: 安装 JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: 赋予 gradlew 执行权限
+        run: chmod +x gradlew
+
+      - name: 编译并产出 jar
+        run: ./gradlew build --no-daemon
+
+      - name: 上传产物（可在 Actions 页面下载 jar）
+        uses: actions/upload-artifact@v4
+        with:
+          name: techevolution-jar
+          path: build/libs/*.jar

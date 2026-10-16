@@ -1,0 +1,5 @@
+{
+  "entity.techevolution.evolved_mob": "进化怪物",
+  "commands.techevolution.spawn": "召唤一个进化怪物",
+  "commands.techevolution.info": "显示当前难度与阶段"
+}
