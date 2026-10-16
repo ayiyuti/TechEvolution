@@ -11,14 +11,15 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
-/** 难度驱动的自然刷怪：夜晚概率生成，难度越高越多。 */
 public class SpawnHandler {
     private int timer = 0;
 
     @SubscribeEvent
     public void onTick(LevelTickEvent.Post event) {
         if (!ModConfig.naturalSpawn) return;
-        ServerLevel level = event.level;
+        
+        // 修正：LevelTickEvent 的 level 字段是私有的，必须用 getLevel()
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
         if (level.dimension() != Level.OVERWORLD) return;
 
         if (++timer < ModConfig.spawnIntervalTicks) return;
@@ -45,7 +46,7 @@ public class SpawnHandler {
                     }
                 }
             }
-            break; // 一个玩家附近即可
+            break; 
         }
     }
 
