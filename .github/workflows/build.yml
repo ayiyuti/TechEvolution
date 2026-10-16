@@ -1,31 +1,26 @@
-name: Build TechEvolution
-
+name: Build Mod
 on:
-  workflow_dispatch:        # 手动在 GitHub 网页点一下就能构建
   push:
-    branches: [main, master]
-
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: 拉取源码
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: 安装 JDK 21
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: '21'
-
-      - name: 赋予 gradlew 执行权限
+      - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
-      - name: 编译并产出 jar
+      - name: Build with Gradle
         run: ./gradlew build --no-daemon
-
-      - name: 上传产物（可在 Actions 页面下载 jar）
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: techevolution-jar
+          name: mod-jar
           path: build/libs/*.jar
